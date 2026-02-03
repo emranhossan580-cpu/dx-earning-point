@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DX Earning Point</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Telegram Web App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#0f172a;
+      color:#fff;
+      margin:0;
+      padding:20px;
+      text-align:center;
+    }
+    .card{
+      background:#111827;
+      padding:20px;
+      border-radius:12px;
+      max-width:400px;
+      margin:auto;
+      box-shadow:0 0 15px rgba(0,0,0,0.4);
+    }
+    h1{ color:#38bdf8; }
+    button{
+      background:#22c55e;
+      border:none;
+      padding:12px 20px;
+      border-radius:8px;
+      font-size:16px;
+      cursor:pointer;
+      margin-top:15px;
+      width:100%;
+    }
+    button:hover{
+      background:#16a34a;
+    }
+    .points{
+      font-size:20px;
+      margin-top:10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>DX Earning Point</h1>
+    <p>🎁 Daily reward collect করুন</p>
+
+    <div class="points">
+      Points: <span id="points">0</span>
+    </div>
+
+    <button onclick="claim()">🎉 Claim Gift</button>
+  </div>
+
+  <script>
+    let points = 0;
+    function claim(){
+      points += 10;
+      document.getElementById("points").innerText = points;
+      alert("✅ 10 Points Added!");
+    }
+  </script>
+</body>
+</html>
