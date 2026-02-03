@@ -6,208 +6,180 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --bg:#0b1220;
-  --card:#121a2f;
-  --primary:#22c55e;
-  --accent:#38bdf8;
-}
-
-*{box-sizing:border-box}
 body{
   margin:0;
-  font-family:Segoe UI,Arial;
-  background:radial-gradient(circle at top,var(--bg),#020617);
+  font-family:Arial,Segoe UI;
+  background:#020617;
   color:#fff;
   display:flex;
   justify-content:center;
-  padding:20px;
 }
-
 .app{
-  width:100%;
   max-width:420px;
-  animation:fade .6s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1}
-}
-
-.card{
-  background:linear-gradient(145deg,#111827,#020617);
-  border-radius:16px;
-  padding:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.5);
-  margin-bottom:15px;
-}
-
-h1{
-  margin:0 0 5px;
-  text-align:center;
-  color:var(--accent);
-}
-
-.sub{
-  text-align:center;
-  opacity:.7;
-  font-size:13px;
-}
-
-.points{
-  font-size:34px;
-  text-align:center;
-  margin:15px 0;
-  color:var(--primary);
-}
-
-.btn{
   width:100%;
-  padding:13px;
-  margin-top:10px;
-  border:none;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.2s;
+  padding:15px;
 }
-
-.btn:active{transform:scale(.97)}
-
-.claim{background:var(--primary);color:#022c22}
-.task{background:var(--accent);color:#020617}
-.withdraw{background:#f59e0b;color:#111}
-
-input{
+.card{
+  background:#0b1220;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:14px;
+}
+h1{text-align:center;color:#38bdf8;margin:0}
+.points{
+  font-size:32px;
+  text-align:center;
+  color:#22c55e;
+}
+.btn{
   width:100%;
   padding:12px;
   margin-top:8px;
-  border-radius:10px;
   border:none;
-  outline:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
 }
-
-.small{
-  font-size:12px;
-  opacity:.6;
-  text-align:center;
-  margin-top:10px;
+.claim{background:#22c55e}
+.task{background:#38bdf8}
+.withdraw{background:#f59e0b}
+input{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:8px;
+  border:none;
 }
+.small{text-align:center;font-size:12px;opacity:.6}
+.admin{display:none}
 </style>
 </head>
 
 <body>
 <div class="app">
 
-  <!-- USER -->
-  <div class="card">
-    <h1>DX Earning Point</h1>
-    <div class="sub">Telegram ID: <span id="uid">Detecting...</span></div>
-    <div class="points">💰 <span id="points">0</span></div>
+<div class="card">
+<h1>DX Earning Point</h1>
+<div class="small">Telegram ID: <span id="uid">Detecting...</span></div>
+<div class="points">💰 <span id="points">0</span></div>
+<button class="btn claim" onclick="dailyClaim()">🎁 Daily +5</button>
+<button class="btn task" onclick="viewAd()">📢 View Ad +10</button>
+</div>
 
-    <button class="btn claim" onclick="dailyClaim()">🎁 Daily Claim +5</button>
-    <button class="btn task" onclick="openAd()">📢 View Ad +10</button>
-  </div>
+<div class="card">
+<h3>💸 Withdraw</h3>
+<input id="method" placeholder="Bkash / Nagad">
+<input id="number" placeholder="Number">
+<input id="amount" type="number" placeholder="Points">
+<button class="btn withdraw" onclick="withdraw()">Submit</button>
+<div class="small">Manual admin approve</div>
+</div>
 
-  <!-- WITHDRAW -->
-  <div class="card">
-    <h3>💸 Withdraw</h3>
-    <input id="method" placeholder="Payment Method (Bkash/Nagad)" />
-    <input id="number" placeholder="Your Number" />
-    <input id="amount" placeholder="Points Amount" type="number" />
-    <button class="btn withdraw" onclick="withdraw()">Submit Request</button>
-    <div class="small">Admin manual approve system</div>
-  </div>
+<div class="card admin" id="admin">
+<h3>🛠 Admin Panel</h3>
+<div id="withdrawList"></div>
+</div>
 
 </div>
 
 <script>
-/* ---------------- TELEGRAM USER ID ---------------- */
-let tgUserId = "guest";
+/* ========= CONFIG ========= */
+const ADMIN_ID = "8517600317"; // 👉 তোমার Telegram ID
+const BOT_TOKEN = "YOUR_BOT_TOKEN"; // 🔴 এখানে বসাবে
+const AD_LINK = "YOUR_ADSTERRA_DIRECT_LINK"; // 🔴 এখানে বসাবে
+/* ========================= */
 
-if(window.Telegram && Telegram.WebApp){
-  Telegram.WebApp.ready();
-  const user = Telegram.WebApp.initDataUnsafe?.user;
-  if(user){
-    tgUserId = user.id;
-  }
+let tgId = "guest";
+
+if(window.Telegram?.WebApp){
+ Telegram.WebApp.ready();
+ const u = Telegram.WebApp.initDataUnsafe?.user;
+ if(u) tgId = u.id;
 }
 
-document.getElementById("uid").innerText = tgUserId;
+document.getElementById("uid").innerText = tgId;
 
-/* ---------------- POINT STORAGE ---------------- */
-const key = "dx_points_" + tgUserId;
+const key = "dx_" + tgId;
 let points = parseInt(localStorage.getItem(key)) || 0;
 
 function update(){
-  document.getElementById("points").innerText = points;
-  localStorage.setItem(key, points);
+ document.getElementById("points").innerText = points;
+ localStorage.setItem(key, points);
 }
 update();
 
-/* ---------------- DAILY CLAIM ---------------- */
+/* DAILY */
 function dailyClaim(){
-  const todayKey = "daily_" + tgUserId;
-  const today = new Date().toDateString();
+ const k = "daily_" + tgId;
+ const t = new Date().toDateString();
+ if(localStorage.getItem(k) === t){
+  alert("Already claimed");
+  return;
+ }
+ points += 5;
+ localStorage.setItem(k,t);
+ update();
+}
 
-  if(localStorage.getItem(todayKey) === today){
-    alert("❌ Already claimed today");
-    return;
-  }
+/* AD TASK */
+function viewAd(){
+ if(localStorage.getItem("adlock_"+tgId)){
+  alert("Wait before next ad");
+  return;
+ }
+ window.open(AD_LINK,"_blank");
+ localStorage.setItem("adlock_"+tgId,true);
 
-  points += 5;
-  localStorage.setItem(todayKey, today);
+ setTimeout(()=>{
+  points += 10;
   update();
-  alert("✅ Daily reward added");
+  localStorage.removeItem("adlock_"+tgId);
+ },7000);
 }
 
-/* ---------------- AD TASK (SAFE IDEA) ---------------- */
-function openAd(){
-  // SAFE IDEA:
-  // Adsterra Direct Link OR Link-Shortener (shrinkme / ouo)
-  window.open("https://example.com","_blank");
-
-  setTimeout(()=>{
-    points += 10;
-    update();
-    alert("🎉 Task completed");
-  },6000);
-}
-
-/* ---------------- WITHDRAW REQUEST ---------------- */
+/* WITHDRAW */
 function withdraw(){
-  const method = document.getElementById("method").value;
-  const number = document.getElementById("number").value;
-  const amount = parseInt(document.getElementById("amount").value);
+ const m = method.value;
+ const n = number.value;
+ const a = parseInt(amount.value);
 
-  if(!method || !number || !amount){
-    alert("❌ Fill all fields");
-    return;
-  }
+ if(!m||!n||!a) return alert("Fill all");
+ if(a>points) return alert("Not enough points");
 
-  if(amount > points){
-    alert("❌ Not enough points");
-    return;
-  }
+ let w = JSON.parse(localStorage.getItem("withdraws")||"[]");
+ w.push({uid:tgId,method:m,number:n,amount:a,time:new Date().toLocaleString()});
+ localStorage.setItem("withdraws",JSON.stringify(w));
 
-  // SAVE REQUEST (ADMIN MANUAL CHECK)
-  const list = JSON.parse(localStorage.getItem("withdraws") || "[]");
-  list.push({
-    uid: tgUserId,
-    method,
-    number,
-    amount,
-    time: new Date().toLocaleString()
-  });
+ points -= a;
+ update();
+ notifyAdmin(a);
+ alert("Request sent");
+}
 
-  localStorage.setItem("withdraws", JSON.stringify(list));
+/* ADMIN */
+if(tgId == ADMIN_ID){
+ document.getElementById("admin").style.display="block";
+ loadWithdraws();
+}
 
-  points -= amount;
-  update();
+function loadWithdraws(){
+ const list = JSON.parse(localStorage.getItem("withdraws")||"[]");
+ withdrawList.innerHTML = list.map(x =>
+  `<div>👤 ${x.uid}<br>💸 ${x.amount}<br>${x.method} - ${x.number}<hr></div>`
+ ).join("");
+}
 
-  alert("✅ Withdraw request sent\nAdmin will review");
+/* TELEGRAM ADMIN NOTIFY */
+function notifyAdmin(amount){
+ if(!BOT_TOKEN) return;
+ fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+   chat_id:ADMIN_ID,
+   text:`New Withdraw Request\nUser: ${tgId}\nAmount: ${amount}`
+  })
+ });
 }
 </script>
 </body>
