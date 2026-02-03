@@ -1,186 +1,739 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<title>DX Earning Point</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyMaker Mini App</title>
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --primary-color: #2481cc; /* Telegram Blue */
+            --secondary-color: #f0f2f5;
+            --text-color: #333;
+            --text-light: #777;
+            --white: #ffffff;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --nav-height: 60px;
+        }
 
-<style>
-body{
-  margin:0;
-  font-family:Arial,Segoe UI;
-  background:#020617;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-}
-.app{
-  max-width:420px;
-  width:100%;
-  padding:15px;
-}
-.card{
-  background:#0b1220;
-  border-radius:14px;
-  padding:18px;
-  margin-bottom:14px;
-}
-h1{text-align:center;color:#38bdf8;margin:0}
-.points{
-  font-size:32px;
-  text-align:center;
-  color:#22c55e;
-}
-.btn{
-  width:100%;
-  padding:12px;
-  margin-top:8px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-  cursor:pointer;
-}
-.claim{background:#22c55e}
-.task{background:#38bdf8}
-.withdraw{background:#f59e0b}
-input{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:8px;
-  border:none;
-}
-.small{text-align:center;font-size:12px;opacity:.6}
-.admin{display:none}
-</style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent body scroll, handle inside sections */
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--white);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .app-logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .balance-badge {
+            background: #eef6ff;
+            color: var(--primary-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* --- Main Content Area --- */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: calc(var(--nav-height) + 20px); /* Space for nav */
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Cards & UI Elements --- */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-green {
+            background: var(--accent-green);
+            color: var(--white);
+        }
+
+        .btn-red {
+            background: var(--accent-red);
+            color: var(--white);
+        }
+
+        /* --- Home Section --- */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary-color), #4facfe);
+            color: var(--white);
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome-banner h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-box .number {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-box .label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* --- Wallet / Withdraw Section --- */
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: var(--white);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary-color);
+            background: #eef6ff;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .nagad { background: #f7931e; color: white; }
+        .bkash { background: #e2136e; color: white; }
+        .rocket { background: #8c3494; color: white; }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* --- Settings Section --- */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* --- Bottom Navigation --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            cursor: pointer;
+            width: 25%;
+            height: 100%;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+        /* --- Toast Notification --- */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* Ad Container styling */
+        #ad-container {
+            margin-top: 15px;
+            text-align: center;
+            min-height: 50px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #ccc;
+            color: #aaa;
+        }
+
+    </style>
+    <!-- Monetag SDK Script -->
+    <script src='//libtl.com/sdk.js' data-zone='10560040' data-sdk='show_10560040'></script>
 </head>
-
 <body>
-<div class="app">
 
-<div class="card">
-<h1>DX Earning Point</h1>
-<div class="small">Telegram ID: <span id="uid">Detecting...</span></div>
-<div class="points">💰 <span id="points">0</span></div>
-<button class="btn claim" onclick="dailyClaim()">🎁 Daily +5</button>
-<button class="btn task" onclick="viewAd()">📢 View Ad +10</button>
-</div>
+    <!-- Header -->
+    <header>
+        <div class="app-logo">
+            <span>💎</span> Mini Earner
+        </div>
+        <div class="balance-badge">
+            <span id="header-balance">0</span> Coins
+        </div>
+    </header>
 
-<div class="card">
-<h3>💸 Withdraw</h3>
-<input id="method" placeholder="Bkash / Nagad">
-<input id="number" placeholder="Number">
-<input id="amount" type="number" placeholder="Points">
-<button class="btn withdraw" onclick="withdraw()">Submit</button>
-<div class="small">Manual admin approve</div>
-</div>
+    <!-- Main Content -->
+    <main>
+        <!-- Toast Container -->
+        <div id="toast" class="toast">মেসেজ</div>
 
-<div class="card admin" id="admin">
-<h3>🛠 Admin Panel</h3>
-<div id="withdrawList"></div>
-</div>
+        <!-- 1. HOME SECTION -->
+        <section id="home-section" class="section active">
+            <div class="welcome-banner">
+                <h2>স্বাগতম, ব্যবহারকারী!</h2>
+                <p>আজকের টাস্ক শুরু করুন এবং আয় করুন।</p>
+            </div>
 
-</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="number" id="total-earned">0</span>
+                    <span class="label">মোট আয় (কয়েন)</span>
+                </div>
+                <div class="stat-box">
+                    <span class="number" id="ads-watched">0</span>
+                    <span class="label">অ্যাড দেখেছেন</span>
+                </div>
+            </div>
 
-<script>
-/* ========= CONFIG ========= */
-const ADMIN_ID = "8517600317"; // 👉 তোমার Telegram ID
-const BOT_TOKEN = "YOUR_BOT_TOKEN"; // 🔴 এখানে বসাবে
-const AD_LINK = "YOUR_ADSTERRA_DIRECT_LINK"; // 🔴 এখানে বসাবে
-/* ========================= */
+            <div class="card">
+                <h3>🚀 দ্রুত আয় করুন</h3>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">নিচের বাটনে ক্লিক করে অ্যাড দেখুন এবং ৫ কয়েন পান।</p>
+                
+                <button class="btn btn-primary" onclick="watchAdAndEarn()">
+                    <span>📺</span> অ্যাড দেখুন ও ৫ কয়েন নিন
+                </button>
 
-let tgId = "guest";
+                <!-- Ad Area -->
+                <div id="ad-container">
+                    অ্যাড লোড হচ্ছে...
+                </div>
+            </div>
 
-if(window.Telegram?.WebApp){
- Telegram.WebApp.ready();
- const u = Telegram.WebApp.initDataUnsafe?.user;
- if(u) tgId = u.id;
-}
+            <div class="card">
+                <h3>📜 ডেইলি চ্যালেঞ্জ</h3>
+                <button class="btn" style="background: #eee; color: #333; margin-bottom: 10px;">
+                    ✅ অ্যাপে লগইন করুন (+2 কয়েন)
+                </button>
+                <button class="btn" style="background: #eee; color: #333;">
+                    🔗 বন্ধুদের শেয়ার করুন (+10 কয়েন)
+                </button>
+            </div>
+        </section>
 
-document.getElementById("uid").innerText = tgId;
+        <!-- 2. EARN SECTION (More Tasks) -->
+        <section id="earn-section" class="section">
+            <div class="card">
+                <h3>💰 অতিরিক্ত টাস্ক</h3>
+                
+                <div class="task-item" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong>সার্ভে পূরণ করুন</strong>
+                        <span style="color:var(--accent-green);">+50 Coins</span>
+                    </div>
+                    <button class="btn btn-green" style="padding: 8px;">শুরু করুন</button>
+                </div>
 
-const key = "dx_" + tgId;
-let points = parseInt(localStorage.getItem(key)) || 0;
+                <div class="task-item">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong>অন্য অ্যাপ ডাউনলোড করুন</strong>
+                        <span style="color:var(--accent-green);">+100 Coins</span>
+                    </div>
+                    <button class="btn btn-green" style="padding: 8px;">ডাউনলোড</button>
+                </div>
+            </div>
+        </section>
 
-function update(){
- document.getElementById("points").innerText = points;
- localStorage.setItem(key, points);
-}
-update();
+        <!-- 3. WALLET / WITHDRAW SECTION -->
+        <section id="wallet-section" class="section">
+            <div class="card">
+                <h3>💳 উত্তোলন করুন</h3>
+                <div class="input-group">
+                    <label>আপনার বর্তমান ব্যালেন্স:</label>
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">
+                        <span id="wallet-balance">0</span> Coins
+                    </div>
+                    <p style="font-size: 0.8rem; color: #e74c3c;">মিনিমাম উইথড্র: ১০০০ কয়েন</p>
+                </div>
+            </div>
 
-/* DAILY */
-function dailyClaim(){
- const k = "daily_" + tgId;
- const t = new Date().toDateString();
- if(localStorage.getItem(k) === t){
-  alert("Already claimed");
-  return;
- }
- points += 5;
- localStorage.setItem(k,t);
- update();
-}
+            <div class="card">
+                <h3>পেমেন্ট মেথড সিলেক্ট করুন</h3>
+                
+                <div class="payment-method" onclick="selectPayment('nagad')">
+                    <div class="payment-icon nagad">N</div>
+                    <div>
+                        <div style="font-weight: bold;">Nagad</div>
+                        <div style="font-size: 0.8rem; color: #777;">সর্বনিম্ন ১০০০ কয়েন</div>
+                    </div>
+                </div>
 
-/* AD TASK */
-function viewAd(){
- if(localStorage.getItem("adlock_"+tgId)){
-  alert("Wait before next ad");
-  return;
- }
- window.open(AD_LINK,"_blank");
- localStorage.setItem("adlock_"+tgId,true);
+                <div class="payment-method" onclick="selectPayment('bkash')">
+                    <div class="payment-icon bkash">b</div>
+                    <div>
+                        <div style="font-weight: bold;">Bikash</div>
+                        <div style="font-size: 0.8rem; color: #777;">সর্বনিম্ন ১০০০ কয়েন</div>
+                    </div>
+                </div>
 
- setTimeout(()=>{
-  points += 10;
-  update();
-  localStorage.removeItem("adlock_"+tgId);
- },7000);
-}
+                <div class="payment-method" onclick="selectPayment('rocket')">
+                    <div class="payment-icon rocket">R</div>
+                    <div>
+                        <div style="font-weight: bold;">Rocket</div>
+                        <div style="font-size: 0.8rem; color: #777;">সর্বনিম্ন ১০০০ কয়েন</div>
+                    </div>
+                </div>
 
-/* WITHDRAW */
-function withdraw(){
- const m = method.value;
- const n = number.value;
- const a = parseInt(amount.value);
+                <div id="withdraw-form" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <h4 id="selected-method-title" style="margin-bottom: 10px;">মেথড সিলেক্ট করুন</h4>
+                    <div class="input-group">
+                        <label>মোবাইল নম্বর</label>
+                        <input type="number" placeholder="017xxxxxxxx">
+                    </div>
+                    <div class="input-group">
+                        <label>পরিমাণ (কয়েন)</label>
+                        <input type="number" id="withdraw-amount" placeholder="Ex: 1000">
+                    </div>
+                    <button class="btn btn-primary" onclick="processWithdraw()">উত্তোলন করুন</button>
+                </div>
+            </div>
+        </section>
 
- if(!m||!n||!a) return alert("Fill all");
- if(a>points) return alert("Not enough points");
+        <!-- 4. SETTINGS SECTION -->
+        <section id="settings-section" class="section">
+            <div class="card">
+                <h3>⚙️ সেটিংস</h3>
+                
+                <div class="setting-item">
+                    <span>পুশ নোটিফিকেশন</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="showToast('নোটিফিকেশন সেটিংস আপডেট হয়েছে')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
 
- let w = JSON.parse(localStorage.getItem("withdraws")||"[]");
- w.push({uid:tgId,method:m,number:n,amount:a,time:new Date().toLocaleString()});
- localStorage.setItem("withdraws",JSON.stringify(w));
+                <div class="setting-item">
+                    <span>সাউন্ড এফেক্ট</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="showToast('সাউন্ড সেটিংস আপডেট হয়েছে')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
 
- points -= a;
- update();
- notifyAdmin(a);
- alert("Request sent");
-}
+                <div class="setting-item">
+                    <span>ভাষা (বাংলা)</span>
+                    <span style="color: var(--primary-color); font-size: 0.9rem;">পরিবর্তন ></span>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-red" onclick="showToast('লগআউট সফল হয়েছে')">লগ আউট</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>সহায়তা</h3>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;">সমস্যা হলে আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন।</p>
+                <button class="btn" style="border: 1px solid var(--primary-color); color: var(--primary-color);">চ্যাট সাপোর্ট</button>
+            </div>
+        </section>
+    </main>
 
-/* ADMIN */
-if(tgId == ADMIN_ID){
- document.getElementById("admin").style.display="block";
- loadWithdraws();
-}
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home-section', this)">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('earn-section', this)">
+            <span class="nav-icon">💰</span>
+            <span>Earn</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('wallet-section', this)">
+            <span class="nav-icon">💳</span>
+            <span>Wallet</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('settings-section', this)">
+            <span class="nav-icon">⚙️</span>
+            <span>Settings</span>
+        </div>
+    </nav>
 
-function loadWithdraws(){
- const list = JSON.parse(localStorage.getItem("withdraws")||"[]");
- withdrawList.innerHTML = list.map(x =>
-  `<div>👤 ${x.uid}<br>💸 ${x.amount}<br>${x.method} - ${x.number}<hr></div>`
- ).join("");
-}
+    <script>
+        // --- State Management ---
+        let userBalance = 0;
+        let adsWatchedCount = 0;
+        let totalEarned = 0;
+        let selectedMethod = null;
 
-/* TELEGRAM ADMIN NOTIFY */
-function notifyAdmin(amount){
- if(!BOT_TOKEN) return;
- fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-   chat_id:ADMIN_ID,
-   text:`New Withdraw Request\nUser: ${tgId}\nAmount: ${amount}`
-  })
- });
-}
-</script>
+        // --- Functions ---
+
+        // 1. Tab Switching Logic
+        function switchTab(sectionId, navElement) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Highlight nav item
+            if(navElement) {
+                navElement.classList.add('active');
+            }
+
+            // Update wallet balance display when entering wallet
+            if(sectionId === 'wallet-section') {
+                updateUI();
+            }
+        }
+
+        // 2. Update UI Elements
+        function updateUI() {
+            document.getElementById('header-balance').innerText = userBalance;
+            document.getElementById('wallet-balance').innerText = userBalance;
+            document.getElementById('total-earned').innerText = totalEarned;
+            document.getElementById('ads-watched').innerText = adsWatchedCount;
+        }
+
+        // 3. Watch Ad Logic (Monetag Integration)
+        function watchAdAndEarn() {
+            // Visual feedback
+            showToast('অ্যাড লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।');
+            
+            // Trigger Monetag Ad via SDK if available
+            // Since we cannot guarantee the external script runs locally, we simulate the success after a delay
+            // In a real production app, the SDK would trigger a callback on successful view.
+            
+            // Simulation of Ad Watch Delay
+            setTimeout(() => {
+                // Logic to actually trigger the ad if SDK loaded
+                if(typeof window.show_10560040 === 'function') {
+                    try {
+                        window.show_10560040(); // Calling the specific Monetag function from data-sdk attribute
+                        // Note: Real callback handling depends on the provider's specific API documentation
+                    } catch (e) {
+                        console.log("Ad SDK Error", e);
+                    }
+                }
+
+                // Reward the user (Simulating successful ad watch)
+                addReward(5);
+                showToast('অভিনন্দন! আপনি ৫ কয়েন পেয়েছেন।');
+                
+                // Update the ad container text
+                document.getElementById('ad-container').innerText = "অ্যাড শেষ হয়েছে! ধন্যবাদ।";
+                
+                // Reset ad container text after a while
+                setTimeout(() => {
+                    document.getElementById('ad-container').innerText = "পরবর্তী অ্যাডের জন্য প্রস্তুত...";
+                }, 3000);
+
+            }, 2000);
+        }
+
+        function addReward(amount) {
+            userBalance += amount;
+            totalEarned += amount;
+            adsWatchedCount++;
+            updateUI();
+        }
+
+        // 4. Payment Method Selection
+        function selectPayment(method) {
+            // Remove selected class from all
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            
+            // Add to clicked (find specific element is tricky via onclick, simpler logic:)
+            // Re-query based on class inside for simplicity or use event delegation, 
+            // but let's just find the one clicked:
+            const elements = document.querySelectorAll('.payment-method');
+            if(method === 'nagad') elements[0].classList.add('selected');
+            if(method === 'bkash') elements[1].classList.add('selected');
+            if(method === 'rocket') elements[2].classList.add('selected');
+
+            selectedMethod = method;
+            
+            // Show form
+            const form = document.getElementById('withdraw-form');
+            form.style.display = 'block';
+            form.classList.add('active'); // for animation if needed
+            
+            // Update Title
+            const titleMap = {
+                'nagad': 'Nagad উত্তোলন',
+                'bkash': 'Bikash উত্তোলন',
+                'rocket': 'Rocket উত্তোলন'
+            };
+            document.getElementById('selected-method-title').innerText = titleMap[method];
+        }
+
+        // 5. Withdraw Process
+        function processWithdraw() {
+            const amountInput = document.getElementById('withdraw-amount');
+            const amount = parseInt(amountInput.value);
+
+            if (!selectedMethod) {
+                showToast('দয়া করে একটি পেমেন্ট মেথড সিলেক্ট করুন।');
+                return;
+            }
+
+            if (!amount || amount < 1000) {
+                showToast('মিনিমাম উইথড্র পরিমাণ ১০০০ কয়েন।');
+                return;
+            }
+
+            if (amount > userBalance) {
+                showToast('আপনার পর্যাপ্ত ব্যালেন্স নেই।');
+                return;
+            }
+
+            // Success simulation
+            userBalance -= amount;
+            updateUI();
+            amountInput.value = '';
+            showToast('সফল! আপনার উত্তোলন রিকোয়েস্ট প্রসেস করা হচ্ছে।');
+            
+            // Reset form
+            document.getElementById('withdraw-form').style.display = 'none';
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            selectedMethod = null;
+        }
+
+        // 6. Toast Notification System
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize UI
+        updateUI();
+
+        // --- Telegram WebApp Integration (Optional but good practice for TMAs) ---
+        // If running inside Telegram, expand the app
+        if(window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.expand(); // Use full height
+            tg.enableClosingConfirmation(); // Ask before closing
+            // You can also use tg.BackButton.show() etc.
+        }
+
+    </script>
 </body>
 </html>
