@@ -7,77 +7,74 @@
 
 <style>
 body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#0f172a;
-    color:#fff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 .card{
-    background:#020617;
-    padding:25px;
-    border-radius:16px;
-    width:300px;
-    text-align:center;
-    box-shadow:0 0 20px rgba(0,0,0,.6);
+  background:#020617;
+  padding:25px;
+  border-radius:16px;
+  width:300px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.6);
 }
-h1{
-    margin:0;
-    font-size:22px;
-}
-.points{
-    font-size:36px;
-    margin:15px 0;
-    color:#22c55e;
-}
+h1{color:#38bdf8;}
 button{
-    width:100%;
-    padding:12px;
-    font-size:16px;
-    border:none;
-    border-radius:10px;
-    background:#2563eb;
-    color:#fff;
-    cursor:pointer;
-}
-button:active{
-    transform:scale(0.97);
+  margin-top:15px;
+  padding:12px;
+  width:100%;
+  border:none;
+  border-radius:10px;
+  background:#16a34a;
+  color:#fff;
+  font-size:16px;
 }
 .note{
-    font-size:12px;
-    opacity:0.7;
-    margin-top:10px;
+  font-size:12px;
+  opacity:.7;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
-
 <div class="card">
-    <h1>DX Earning Point</h1>
-    <div class="points" id="points">0</div>
-    <button onclick="earn()">🎁 Earn Point</button>
-    <div class="note">Points auto save ✔</div>
+  <h1>DX Earning Point</h1>
+  <p>🎁 Daily reward collect করুন</p>
+
+  <h2>Points: <span id="points">0</span></h2>
+
+  <button onclick="claim()">🎉 Claim Gift</button>
+  <div class="note">⏰ Daily 1 time only</div>
 </div>
 
 <script>
-let points = localStorage.getItem("dx_points");
+let points = localStorage.getItem("points") || 0;
+let lastClaim = localStorage.getItem("lastClaim") || 0;
 
-if(points === null){
-    points = 0;
-}
-points = parseInt(points);
 document.getElementById("points").innerText = points;
 
-function earn(){
-    points += 1;
-    localStorage.setItem("dx_points", points);
-    document.getElementById("points").innerText = points;
+function claim(){
+  let today = new Date().toDateString();
+
+  if(lastClaim === today){
+    alert("❌ Today already claimed!");
+    return;
+  }
+
+  points = parseInt(points) + 10;
+  localStorage.setItem("points", points);
+  localStorage.setItem("lastClaim", today);
+
+  document.getElementById("points").innerText = points;
+  alert("✅ 10 Points Added!");
 }
 </script>
-
 </body>
 </html>
