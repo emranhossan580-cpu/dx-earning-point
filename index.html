@@ -1,70 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DX Earning Point</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>DX Earning Point</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Telegram Web App -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#0f172a;
-      color:#fff;
-      margin:0;
-      padding:20px;
-      text-align:center;
-    }
-    .card{
-      background:#111827;
-      padding:20px;
-      border-radius:12px;
-      max-width:400px;
-      margin:auto;
-      box-shadow:0 0 15px rgba(0,0,0,0.4);
-    }
-    h1{ color:#38bdf8; }
-    button{
-      background:#22c55e;
-      border:none;
-      padding:12px 20px;
-      border-radius:8px;
-      font-size:16px;
-      cursor:pointer;
-      margin-top:15px;
-      width:100%;
-    }
-    button:hover{
-      background:#16a34a;
-    }
-    .points{
-      font-size:20px;
-      margin-top:10px;
-    }
-  </style>
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#0f172a;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.card{
+    background:#020617;
+    padding:25px;
+    border-radius:16px;
+    width:300px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.6);
+}
+h1{
+    margin:0;
+    font-size:22px;
+}
+.points{
+    font-size:36px;
+    margin:15px 0;
+    color:#22c55e;
+}
+button{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:#fff;
+    cursor:pointer;
+}
+button:active{
+    transform:scale(0.97);
+}
+.note{
+    font-size:12px;
+    opacity:0.7;
+    margin-top:10px;
+}
+</style>
 </head>
 
 <body>
-  <div class="card">
+
+<div class="card">
     <h1>DX Earning Point</h1>
-    <p>🎁 Daily reward collect করুন</p>
+    <div class="points" id="points">0</div>
+    <button onclick="earn()">🎁 Earn Point</button>
+    <div class="note">Points auto save ✔</div>
+</div>
 
-    <div class="points">
-      Points: <span id="points">0</span>
-    </div>
+<script>
+let points = localStorage.getItem("dx_points");
 
-    <button onclick="claim()">🎉 Claim Gift</button>
-  </div>
+if(points === null){
+    points = 0;
+}
+points = parseInt(points);
+document.getElementById("points").innerText = points;
 
-  <script>
-    let points = 0;
-    function claim(){
-      points += 10;
-      document.getElementById("points").innerText = points;
-      alert("✅ 10 Points Added!");
-    }
-  </script>
+function earn(){
+    points += 1;
+    localStorage.setItem("dx_points", points);
+    document.getElementById("points").innerText = points;
+}
+</script>
+
 </body>
 </html>
